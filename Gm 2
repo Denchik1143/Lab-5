@@ -1,0 +1,37 @@
+function autoReplyToUnreadEmails() {
+  var intervalMinutes = 5; // Set the interval in minutes
+
+  var labelName = "AutoReplied"; 
+  var responseMessage = "Thank you very much! I received your message!";
+
+
+  var inbox = GmailApp.getInbox();
+
+  var threads = inbox.getThreads();
+
+  var unreadThreads = threads.filter(function(thread) {
+    return !thread.isInInbox() && !thread.hasStarredMessages();
+  });
+
+  unreadThreads.forEach(function(thread) {
+    thread.getMessages().forEach(function(message) {
+      message.reply(responseMessage);
+      message.star(); 
+    });
+
+    thread.moveToInbox();
+
+    var label = GmailApp.getUserLabelByName(labelName);
+    if (!label) {
+      label = GmailApp.createLabel(labelName);
+    }
+    thread.addLabel(label);
+  });
+}
+
+function setupTriggers() {
+  ScriptApp.newTrigger("autoReplyToUnreadEmails")
+    .timeBased()
+    .everyMinutes(5)
+    .create();
+}
