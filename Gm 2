@@ -1,37 +1,44 @@
-function autoReplyToUnreadEmails() {
-  var intervalMinutes = 5; // Set the interval in minutes
-
-  var labelName = "AutoReplied"; 
-  var responseMessage = "Thank you very much! I received your message!";
-
-
-  var inbox = GmailApp.getInbox();
-
-  var threads = inbox.getThreads();
-
-  var unreadThreads = threads.filter(function(thread) {
-    return !thread.isInInbox() && !thread.hasStarredMessages();
-  });
-
-  unreadThreads.forEach(function(thread) {
-    thread.getMessages().forEach(function(message) {
-      message.reply(responseMessage);
-      message.star(); 
-    });
-
-    thread.moveToInbox();
-
-    var label = GmailApp.getUserLabelByName(labelName);
-    if (!label) {
-      label = GmailApp.createLabel(labelName);
+function getAttachmentsFromAuthor(authorEmail) {
+  var attachments = [];
+  
+  // Пошук листів від вказаного автора
+  var threads = GmailApp.search("from:l.v.shostak@rcit.ukr.education");
+  
+  for (var i = 0; i < threads.length; i++) {
+    var messages = threads[i].getMessages();
+    
+    for (var j = 0; j < messages.length; j++) {
+      var message = messages[j];
+      var messageAttachments = message.getAttachments();
+      
+      for (var k = 0; k < messageAttachments.length; k++) {
+        attachments.push(messageAttachments[k].getName());
+      }
     }
-    thread.addLabel(label);
-  });
+  }
+  
+  // Виведення списку вкладень
+  for (var l = 0; l < attachments.length; l++) {
+    Logger.log(attachments[l]);
+  }
+  
+  return attachments;
 }
 
-function setupTriggers() {
-  ScriptApp.newTrigger("autoReplyToUnreadEmails")
-    .timeBased()
-    .everyMinutes(5)
-    .create();
+// Використання функції
+function testGetAttachmentsFromAuthor() {
+  var authorEmail = "l.v.shostak@rcit.ukr.education";
+  var attachments = getAttachmentsFromAuthor(authorEmail);
+  
+  if (attachments.length > 0) {
+    // Виведення вкладень у діалоговому вікні
+    var attachmentsString = "Список вкладень від " + authorEmail + ":\n\n";
+    for (var i = 0; i < attachments.length; i++) {
+      attachmentsString += attachments[i] + "\n";
+    }
+    Browser.msgBox(attachmentsString);
+  } else {
+    // Якщо вкладень не знайдено
+    Browser.msgBox("Немає вкладень від " + authorEmail);
+  }
 }
