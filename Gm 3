@@ -1,0 +1,20 @@
+function sendEmailWithTemplate(recipientName, recipientAddress) {
+   var recipientName = "Denis";
+  var recipientAddress = "snazarii@rcit.ukr.education";
+  var emailTemplate = `
+    <html>
+      <body>
+        <p>Hello, ${recipientName}</p>
+        <p>This is a sample email template.</p>
+      </body>
+    </html>
+  `;
+
+  MailApp.sendEmail({
+    to: recipientAddress,
+    subject: "Your Subject Here",
+    body: "Please enable HTML to view this message",
+    htmlBody: emailTemplate
+  });
+}
+
